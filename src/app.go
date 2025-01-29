@@ -143,7 +143,6 @@ func initialModel(db *sql.DB) model {
 	list.SetShowStatusBar(false)
 	list.SetShowHelp(false)
 
-	// Initialize userIDInput
 	userIDInput := textinput.New()
 	userIDInput.Placeholder = "Enter Aime Card ID"
 	userIDInput.Focus()
@@ -279,13 +278,12 @@ func (m model) View() string {
 }
 
 func main() {
-	// Load environment variables from .env file
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Get the database URL from the environment variable
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
 		log.Fatal("DB_URL is not set in the .env file")
@@ -298,7 +296,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// Start the TUI application
 	p := tea.NewProgram(initialModel(db))
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error running program:", err)
