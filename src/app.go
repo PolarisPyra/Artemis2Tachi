@@ -27,6 +27,9 @@ func userFromAimeID(db *sql.DB, aimeCardID string) (string, error) {
 	return user, nil
 }
 
+type userNameMsg string
+type totalUsersMsg map[string]int
+
 type gameItem struct {
 	gameName  string
 	gameCount int
@@ -78,18 +81,18 @@ func fetchUserName(db *sql.DB, game string, userID string) tea.Cmd {
 		case "MaiMai":
 			query = "SELECT userName FROM mai2_profile_detail WHERE user = ?"
 		default:
-			return userNameFetchedMsg("Invalid game")
+			return userNameMsg("Invalid game")
 		}
 
 		err := db.QueryRow(query, userID).Scan(&userName)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return userNameFetchedMsg("User not found")
+				return userNameMsg("User not found")
 			}
 			log.Fatal(err)
 		}
 
-		return userNameFetchedMsg(userName)
+		return userNameMsg(userName)
 	}
 }
 
@@ -107,9 +110,6 @@ type model struct {
 	view              string
 	games             []string
 }
-
-type userNameFetchedMsg string
-type totalUsersMsg map[string]int
 
 func initialModel(db *sql.DB) model {
 	games := []string{"Chunithm", "Ongeki", "MaiMai"}
@@ -248,7 +248,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.list.SetItems(newItems)
 		return m, nil
-	case userNameFetchedMsg:
+	case userNameMsg:
 		m.userName = string(msg)
 		m.view = "userDisplay"
 		return m, nil
